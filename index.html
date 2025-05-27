@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>30-Day Chinese Learning Journey</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="title">
+                    <i class="fas fa-graduation-cap"></i>
+                    30-Day Chinese Learning Journey
+                </h1>
+                <p class="subtitle">Master HSK 3 vocabulary with daily interactive lessons</p>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <div class="nav-content">
+                <div class="day-selector">
+                    <button class="nav-btn" id="prevDay">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="day-display">
+                        <span class="day-label">Day</span>
+                        <span class="day-number" id="currentDay">1</span>
+                        <span class="day-total">of 30</span>
+                    </div>
+                    <button class="nav-btn" id="nextDay">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Day Title -->
+            <div class="day-header">
+                <h2 class="day-title" id="dayTitle">Day 1: Family Members</h2>
+                <div class="day-stats">
+                    <div class="stat">
+                        <i class="fas fa-book"></i>
+                        <span id="vocabCount">20</span> words
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-comments"></i>
+                        <span id="sentenceCount">30</span> sentences
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="vocabulary">
+                    <i class="fas fa-list"></i>
+                    Vocabulary
+                </button>
+                <button class="tab" data-tab="sentences">
+                    <i class="fas fa-comment-dots"></i>
+                    Example Sentences
+                </button>
+                <button class="tab" data-tab="pinyin">
+                    <i class="fas fa-volume-up"></i>
+                    Pinyin Guide
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Vocabulary Tab -->
+                <div class="tab-panel active" id="vocabulary">
+                    <div class="section-header">
+                        <h3>Daily Vocabulary</h3>
+                        <button class="download-btn" id="downloadVocab">
+                            <i class="fas fa-download"></i>
+                            Download CSV
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table class="vocab-table" id="vocabTable">
+                            <thead>
+                                <tr>
+                                    <th>Pinyin</th>
+                                    <th>Simplified</th>
+                                    <th>Traditional</th>
+                                    <th>English</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody id="vocabTableBody">
+                                <!-- Vocabulary will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sentences Tab -->
+                <div class="tab-panel" id="sentences">
+                    <div class="section-header">
+                        <h3>Example Sentences</h3>
+                        <button class="download-btn" id="downloadSentences">
+                            <i class="fas fa-download"></i>
+                            Download CSV
+                        </button>
+                    </div>
+                    <div class="sentences-container" id="sentencesContainer">
+                        <!-- Sentences will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Pinyin Tab -->
+                <div class="tab-panel" id="pinyin">
+                    <div class="section-header">
+                        <h3>Pinyin Reference Guide</h3>
+                    </div>
+                    <div class="pinyin-guide">
+                        <div class="pinyin-section">
+                            <h4>Tones</h4>
+                            <div class="tone-grid">
+                                <div class="tone-card">
+                                    <div class="tone-symbol">ā</div>
+                                    <div class="tone-name">First Tone</div>
+                                    <div class="tone-desc">High level tone</div>
+                                </div>
+                                <div class="tone-card">
+                                    <div class="tone-symbol">á</div>
+                                    <div class="tone-name">Second Tone</div>
+                                    <div class="tone-desc">Rising tone</div>
+                                </div>
+                                <div class="tone-card">
+                                    <div class="tone-symbol">ǎ</div>
+                                    <div class="tone-name">Third Tone</div>
+                                    <div class="tone-desc">Falling-rising tone</div>
+                                </div>
+                                <div class="tone-card">
+                                    <div class="tone-symbol">à</div>
+                                    <div class="tone-name">Fourth Tone</div>
+                                    <div class="tone-desc">Falling tone</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="pinyin-section">
+                            <h4>Common Initials</h4>
+                            <div class="pinyin-table">
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">b</span>
+                                    <span class="pinyin-char">p</span>
+                                    <span class="pinyin-char">m</span>
+                                    <span class="pinyin-char">f</span>
+                                </div>
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">d</span>
+                                    <span class="pinyin-char">t</span>
+                                    <span class="pinyin-char">n</span>
+                                    <span class="pinyin-char">l</span>
+                                </div>
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">g</span>
+                                    <span class="pinyin-char">k</span>
+                                    <span class="pinyin-char">h</span>
+                                    <span class="pinyin-char">j</span>
+                                </div>
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">q</span>
+                                    <span class="pinyin-char">x</span>
+                                    <span class="pinyin-char">zh</span>
+                                    <span class="pinyin-char">ch</span>
+                                </div>
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">sh</span>
+                                    <span class="pinyin-char">r</span>
+                                    <span class="pinyin-char">z</span>
+                                    <span class="pinyin-char">c</span>
+                                </div>
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">s</span>
+                                    <span class="pinyin-char">y</span>
+                                    <span class="pinyin-char">w</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pinyin-section">
+                            <h4>Common Finals</h4>
+                            <div class="pinyin-table">
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">a</span>
+                                    <span class="pinyin-char">o</span>
+                                    <span class="pinyin-char">e</span>
+                                    <span class="pinyin-char">i</span>
+                                </div>
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">u</span>
+                                    <span class="pinyin-char">ü</span>
+                                    <span class="pinyin-char">ai</span>
+                                    <span class="pinyin-char">ei</span>
+                                </div>
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">ao</span>
+                                    <span class="pinyin-char">ou</span>
+                                    <span class="pinyin-char">an</span>
+                                    <span class="pinyin-char">en</span>
+                                </div>
+                                <div class="pinyin-row">
+                                    <span class="pinyin-char">ang</span>
+                                    <span class="pinyin-char">eng</span>
+                                    <span class="pinyin-char">ong</span>
+                                    <span class="pinyin-char">er</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2024 Chinese Learning Journey. Designed for HSK 3 preparation.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
