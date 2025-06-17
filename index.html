@@ -1,144 +1,353 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tashido's Journey: 30-Day Chinese HSK 3</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
-    <div class="page-wrapper">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h1 class="app-title">
-                    <i class="fas fa-dragon"></i>
-                    Tashido's Journey
-                </h1>
-                <p class="app-subtitle">HSK 3 in 30 Days</p>
-            </div>
-            <nav class="day-navigation">
-                <button class="nav-arrow" id="prevDay" aria-label="Previous Day">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <div class="current-day-info">
-                    <span id="currentDayDisplay">Day 1</span>
-                </div>
-                <button class="nav-arrow" id="nextDay" aria-label="Next Day">
-                    <i class="fas fa-arrow-right"></i>
-                </button>
-            </nav>
-            <div class="progress-container">
-                <div class="progress-bar-dynamic">
-                    <div class="progress-fill-dynamic" id="progressFill"></div>
-                </div>
-                <span class="progress-text" id="progressText">1/30</span>
-            </div>
-             <button class="theme-toggle-btn" id="themeToggle" aria-label="Toggle Dark Mode">
-                <i class="fas fa-sun"></i>
-                <i class="fas fa-moon" style="display:none;"></i>
-            </button>
-        </aside>
+// Google Sheets API configuration
+const API_KEY = "AIzaSyDp7usMq_6sQ9kjVLGpA_wuTSeJkGYKbaY";
+const SPREADSHEET_ID = "1r_VRuf4MmJQEf__rB8fTSC0Q3MUOper-fWHW6CQSn-k";
 
-        <main class="main-content">
-            <header class="content-header">
-                <h2 class="lesson-title" id="dayTitle">Day 1: Family Members</h2>
-                <div class="lesson-meta">
-                    <span class="meta-item">
-                        <i class="fas fa-layer-group"></i>
-                        <span id="vocabCount">20</span> Words
-                    </span>
-                    <span class="meta-item">
-                        <i class="fas fa-file-alt"></i>
-                        <span id="sentenceCount">30</span> Sentences
-                    </span>
-                </div>
-            </header>
+// Chinese Learning App JavaScript
 
-            <section class="tabs-container">
-                <div class="tabs-nav">
-                    <button class="tab-btn active" data-tab="vocabulary" aria-selected="true">
-                        <i class="fas fa-font"></i> Vocabulary
-                    </button>
-                    <button class="tab-btn" data-tab="sentences" aria-selected="false">
-                        <i class="fas fa-comment-alt"></i> Sentences
-                    </button>
-                    <button class="tab-btn" data-tab="pinyin" aria-selected="false">
-                        <i class="fas fa-microphone-alt"></i> Pinyin Guide
-                    </button>
-                </div>
+// Current day state
+let currentDay = 1;
+let lessonsData = {};
 
-                <div class="tab-content-area">
-                    <div class="tab-panel active" id="vocabulary" role="tabpanel" aria-labelledby="vocabulary-tab">
-                        <div class="panel-header">
-                            <h3>Daily Vocabulary List</h3>
-                            <button class="action-btn download-btn" id="downloadVocab">
-                                <i class="fas fa-cloud-download-alt"></i> Download CSV
-                            </button>
-                        </div>
-                        <div class="table-wrapper">
-                            <table class="data-table" id="vocabTable">
-                                <thead>
-                                    <tr>
-                                        <th>Pinyin</th>
-                                        <th>Simplified</th>
-                                        <th>Traditional</th>
-                                        <th>English</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="vocabTableBody">
-                                    </tbody>
-                            </table>
-                        </div>
-                    </div>
+const lessonTitles = [
+    "Family Members", "Daily Activities & Routines", "Food & Drinks",
+    "Colors and Clothing", "Transportation", "Weather and Seasons",
+    "Body Parts and Health", "Numbers and Time", "Animals and Nature",
+    "School and Education", "Work and Professions", "Shopping and Money",
+    "Hobbies and Sports", "Emotions and Feelings", "Directions and Places",
+    "Technology and Media", "Furniture and Household", "Cooking and Kitchen",
+    "Travel and Tourism", "Culture and Festivals", "Business and Economy",
+    "Environment and Geography", "Art and Entertainment", "Medicine and Hospital",
+    "Law and Government", "Science and Technology", "History and Tradition",
+    "Communication and Language", "Social Relationships", "Review and Integration"
+];
 
-                    <div class="tab-panel" id="sentences" role="tabpanel" aria-labelledby="sentences-tab">
-                        <div class="panel-header">
-                            <h3>Example Sentences</h3>
-                            <button class="action-btn download-btn" id="downloadSentences">
-                                <i class="fas fa-cloud-download-alt"></i> Download CSV
-                            </button>
-                        </div>
-                        <div class="cards-grid" id="sentencesContainer">
-                            </div>
-                    </div>
+// DOM Elements
+const currentDayDisplayElement = document.getElementById('currentDayDisplay');
+const dayTitleElement = document.getElementById('dayTitle');
+const vocabCountElement = document.getElementById('vocabCount');
+const sentenceCountElement = document.getElementById('sentenceCount');
+const progressFillElement = document.getElementById('progressFill');
+const progressTextElement = document.getElementById('progressText');
+const prevDayBtn = document.getElementById('prevDay');
+const nextDayBtn = document.getElementById('nextDay');
+const vocabTableBody = document.getElementById('vocabTableBody');
+const sentencesContainer = document.getElementById('sentencesContainer');
+const downloadVocabBtn = document.getElementById('downloadVocab');
+const downloadSentencesBtn = document.getElementById('downloadSentences');
+const themeToggleBtn = document.getElementById('themeToggle');
 
-                    <div class="tab-panel" id="pinyin" role="tabpanel" aria-labelledby="pinyin-tab">
-                         <div class="panel-header">
-                            <h3>Pinyin Reference</h3>
-                        </div>
-                        <div class="pinyin-guide-content">
-                            <div class="pinyin-section">
-                                <h4>Tones</h4>
-                                <div class="tones-showcase">
-                                    <div class="tone-info-card"><span>ā</span> First (High)</div>
-                                    <div class="tone-info-card"><span>á</span> Second (Rising)</div>
-                                    <div class="tone-info-card"><span>ǎ</span> Third (Fall-Rise)</div>
-                                    <div class="tone-info-card"><span>à</span> Fourth (Falling)</div>
-                                    <div class="tone-info-card"><span>a</span> Neutral (Light)</div>
-                                </div>
-                            </div>
-                            <div class="pinyin-section">
-                                <h4>Common Initials</h4>
-                                <div class="pinyin-grid">
-                                    <span>b</span><span>p</span><span>m</span><span>f</span><span>d</span><span>t</span><span>n</span><span>l</span><span>g</span><span>k</span><span>h</span><span>j</span><span>q</span><span>x</span><span>zh</span><span>ch</span><span>sh</span><span>r</span><span>z</span><span>c</span><span>s</span><span>y</span><span>w</span>
-                                </div>
-                            </div>
-                            <div class="pinyin-section">
-                                <h4>Common Finals</h4>
-                                 <div class="pinyin-grid">
-                                    <span>a</span><span>o</span><span>e</span><span>i</span><span>u</span><span>ü</span><span>ai</span><span>ei</span><span>ui</span><span>ao</span><span>ou</span><span>iu</span><span>ie</span><span>üe</span><span>er</span><span>an</span><span>en</span><span>in</span><span>un</span><span>ün</span><span>ang</span><span>eng</span><span>ing</span><span>ong</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+// Tab elements
+const tabs = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+
+// Word Zoom Modal Elements
+let wordZoomModal;
+let zoomWordElement;
+let zoomPinyinElement;
+let zoomEnglishElement;
+
+// Initialize the app
+document.addEventListener('DOMContentLoaded', function() {
+    gapi.load('client', initClient);
+});
+
+function initClient() {
+    gapi.client.init({
+        'apiKey': API_KEY,
+        'discoveryDocs': ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+    }).then(function () {
+        fetchLessonData(currentDay);
+    });
+
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeToggleIcon(currentTheme);
+    createWordZoomModal();
+    setupEventListeners();
+}
+
+function fetchLessonData(day) {
+    gapi.client.sheets.spreadsheets.values.get({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `${day}!A2:G`,
+    }).then(function(response) {
+        const range = response.result;
+        if (range.values.length > 0) {
+            const vocabulary = [];
+            const sentences = [];
+            for (let i = 0; i < range.values.length; i++) {
+                const row = range.values[i];
+                if (row[0]) {
+                    vocabulary.push({
+                        pinyin: row[0],
+                        simplified: row[1],
+                        traditional: row[2],
+                        english: row[3]
+                    });
+                }
+                if (row[4]) {
+                    sentences.push({
+                        simplified: row[4],
+                        pinyin: row[5],
+                        english: row[6]
+                    });
+                }
+            }
+            lessonsData[day] = {
+                title: lessonTitles[day - 1],
+                vocabulary: vocabulary,
+                sentences: sentences
+            };
+            updateDisplay();
+        } else {
+            console.log('No data found.');
+        }
+    }, function(response) {
+        console.log('Error: ' + response.result.error.message);
+    });
+}
+
+function createWordZoomModal() {
+    wordZoomModal = document.createElement('div');
+    wordZoomModal.className = 'word-zoom-modal';
+    wordZoomModal.innerHTML = `
+        <div class="word-zoom-content">
+            <button class="close-zoom"><i class="fas fa-times"></i></button>
+            <div class="zoom-word"></div>
+            <div class="zoom-pinyin"></div>
+            <div class="zoom-english"></div>
+        </div>
+    `;
+    document.body.appendChild(wordZoomModal);
+
+    zoomWordElement = wordZoomModal.querySelector('.zoom-word');
+    zoomPinyinElement = wordZoomModal.querySelector('.zoom-pinyin');
+    zoomEnglishElement = wordZoomModal.querySelector('.zoom-english');
+    const closeButton = wordZoomModal.querySelector('.close-zoom');
+
+    if (closeButton) closeButton.addEventListener('click', closeWordZoomModal);
+    wordZoomModal.addEventListener('click', function(event) {
+        if (event.target === wordZoomModal) closeWordZoomModal();
+    });
+}
+
+function openWordZoomModal(simplified, pinyin, english) {
+    if (zoomWordElement) zoomWordElement.textContent = simplified;
+    if (zoomPinyinElement) zoomPinyinElement.textContent = pinyin;
+    if (zoomEnglishElement) zoomEnglishElement.textContent = english;
+    if (wordZoomModal) wordZoomModal.classList.add('active');
+}
+
+function closeWordZoomModal() {
+    if (wordZoomModal) wordZoomModal.classList.remove('active');
+}
+
+function setupEventListeners() {
+    if (prevDayBtn) prevDayBtn.addEventListener('click', () => changeDay(-1));
+    if (nextDayBtn) nextDayBtn.addEventListener('click', () => changeDay(1));
+    if (downloadVocabBtn) downloadVocabBtn.addEventListener('click', () => downloadCSV('vocabulary'));
+    if (downloadSentencesBtn) downloadSentencesBtn.addEventListener('click', () => downloadCSV('sentences'));
+    if (themeToggleBtn) themeToggleBtn.addEventListener('click', toggleTheme);
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+            if (tabName) switchTab(tabName);
+            else console.error("Tab button missing data-tab attribute:", tab);
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft' && prevDayBtn && !prevDayBtn.disabled) changeDay(-1);
+        else if (e.key === 'ArrowRight' && nextDayBtn && !nextDayBtn.disabled) changeDay(1);
+    });
+}
+
+function changeDay(direction) {
+    const newDay = currentDay + direction;
+    if (newDay > 0 && newDay <= 30) {
+        currentDay = newDay;
+        if (lessonsData[currentDay]) {
+            updateDisplay();
+        } else {
+            fetchLessonData(currentDay);
+        }
+    }
+}
+
+function updateDisplay() {
+    const dayData = lessonsData[currentDay];
+    if (!dayData) {
+        return;
+    }
+
+    if (currentDayDisplayElement) currentDayDisplayElement.textContent = `Day ${currentDay}`;
+    if (dayTitleElement) dayTitleElement.textContent = `Day ${currentDay}: ${dayData.title || "Untitled Lesson"}`;
+
+    const vocabLength = dayData.vocabulary ? dayData.vocabulary.length : 0;
+    const sentencesLength = dayData.sentences ? dayData.sentences.length : 0;
+    if (vocabCountElement) vocabCountElement.textContent = vocabLength;
+    if (sentenceCountElement) sentenceCountElement.textContent = sentencesLength;
+
+    const totalDays = 30;
+    const progress = (currentDay / totalDays) * 100;
+    if (progressFillElement) progressFillElement.style.width = `${progress}%`;
+    if (progressTextElement) progressTextElement.innerHTML = `${currentDay}/${totalDays}`;
+
+    if (prevDayBtn) prevDayBtn.disabled = currentDay === 1;
+    if (nextDayBtn) nextDayBtn.disabled = currentDay === 30;
+
+    updateVocabularyTable();
+    updateSentences();
+}
+
+function updateVocabularyTable() {
+    if (!vocabTableBody) return;
+    const dayData = lessonsData[currentDay];
+    vocabTableBody.innerHTML = '';
+
+    if (dayData && dayData.vocabulary && dayData.vocabulary.length > 0) {
+        dayData.vocabulary.forEach((word) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="pinyin-text">${word.pinyin || ''}</td>
+                <td class="chinese-text simplified-char">${word.simplified || ''}</td>
+                <td class="chinese-text traditional-char">${word.traditional || ''}</td>
+                <td>${word.english || ''}</td>
+            `;
+
+            const simplifiedCell = row.querySelector('.simplified-char');
+            const traditionalCell = row.querySelector('.traditional-char');
+
+            if (simplifiedCell) {
+                simplifiedCell.style.cursor = 'zoom-in';
+                simplifiedCell.addEventListener('click', () => openWordZoomModal(word.simplified, word.pinyin, word.english));
+            }
+
+            if (traditionalCell) {
+                traditionalCell.style.cursor = 'zoom-in';
+                traditionalCell.addEventListener('click', () => openWordZoomModal(word.traditional, word.pinyin, word.english));
+            }
+
+            vocabTableBody.appendChild(row);
+        });
+    } else {
+        vocabTableBody.innerHTML = '<tr><td colspan="4">No vocabulary available for this day.</td></tr>';
+    }
+}
+
+function updateSentences() {
+    if (!sentencesContainer) return;
+    const dayData = lessonsData[currentDay];
+    sentencesContainer.innerHTML = '';
+
+    if (dayData && dayData.sentences && dayData.sentences.length > 0) {
+        dayData.sentences.forEach((sentence, index) => {
+            const sentenceCard = document.createElement('div');
+            sentenceCard.className = 'sentence-card';
+            sentenceCard.innerHTML = `
+                <div class="sentence-number">${index + 1}</div>
+                <div class="sentence-chinese">${sentence.simplified || ''}</div>
+                <div class="sentence-pinyin">${sentence.pinyin || ''}</div>
+                <div class="sentence-english">${sentence.english || ''}</div>
+            `;
+            const chineseTextElement = sentenceCard.querySelector('.sentence-chinese');
+            if (chineseTextElement) {
+                chineseTextElement.style.cursor = 'zoom-in';
+                chineseTextElement.addEventListener('click', () => openWordZoomModal(sentence.simplified, sentence.pinyin, sentence.english));
+            }
+            sentencesContainer.appendChild(sentenceCard);
+        });
+    } else {
+        sentencesContainer.innerHTML = '<p>No sentences available for this day.</p>';
+    }
+}
+
+function switchTab(tabName) {
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+        tab.setAttribute('aria-selected', 'false');
+    });
+    tabPanels.forEach(panel => panel.classList.remove('active'));
+
+    const selectedTab = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    const selectedPanel = document.getElementById(tabName);
+
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+        selectedTab.setAttribute('aria-selected', 'true');
+    } else {
+        console.error(`Tab button for '${tabName}' not found.`);
+    }
+    if (selectedPanel) selectedPanel.classList.add('active');
+    else console.error(`Tab panel with id '${tabName}' not found.`);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeToggleIcon(newTheme);
+}
+
+function updateThemeToggleIcon(theme) {
+    if (!themeToggleBtn) return;
+    const sunIcon = themeToggleBtn.querySelector('.fa-sun');
+    const moonIcon = themeToggleBtn.querySelector('.fa-moon');
+    if (sunIcon && moonIcon) {
+        sunIcon.style.display = theme === 'dark' ? 'none' : 'inline-block';
+        moonIcon.style.display = theme === 'dark' ? 'inline-block' : 'none';
+    }
+}
+
+function downloadCSV(type) {
+    const dayData = lessonsData[currentDay];
+    if (!dayData) {
+        alert(`No data available for Day ${currentDay} to download.`);
+        return;
+    }
+
+    let csvContent = '';
+    let filename = '';
+
+    if (type === 'vocabulary') {
+        if (!dayData.vocabulary || dayData.vocabulary.length === 0) {
+            alert(`No vocabulary data to download for Day ${currentDay}.`);
+            return;
+        }
+        csvContent = 'Pinyin,Simplified,Traditional,English\n';
+        dayData.vocabulary.forEach(word => {
+            csvContent += `"${word.pinyin || ''}","${word.simplified || ''}","${word.traditional || ''}","${word.english || ''}"\n`;
+        });
+        filename = `Day${currentDay}_Vocabulary.csv`;
+    } else if (type === 'sentences') {
+        if (!dayData.sentences || dayData.sentences.length === 0) {
+            alert(`No sentence data to download for Day ${currentDay}.`);
+            return;
+        }
+        csvContent = 'Simplified,Pinyin,English\n';
+        dayData.sentences.forEach(sentence => {
+            csvContent += `"${sentence.simplified || ''}","${sentence.pinyin || ''}","${sentence.english || ''}"\n`;
+        });
+        filename = `Day${currentDay}_Sentences.csv`;
+    } else {
+        console.error("Invalid download type specified.");
+        return;
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    } else {
+        alert("Your browser does not support direct CSV downloads. Please try a different browser.");
+    }
+}
