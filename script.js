@@ -163,6 +163,53 @@ function setupEventListeners() {
     });
 }
 
+/**
+ * Speaks the given text using the Web Speech API with a Chinese voice.
+ * This version is more robust, actively looks for an installed Chinese voice,
+ * and provides feedback if one isn't found.
+ * @param {string} text The text to be spoken.
+ */
+function speakText(text) {
+    if (!('speechSynthesis' in window)) {
+        alert("Sorry, your browser doesn't support text-to-speech.");
+        return;
+    }
+
+    const speak = () => {
+        window.speechSynthesis.cancel(); // Stop any previous speech
+
+        const voices = window.speechSynthesis.getVoices();
+        let chineseVoice = voices.find(voice => voice.lang === 'zh-CN');
+
+        // If a specific 'zh-CN' voice isn't found, fallback to any voice that supports Chinese.
+        if (!chineseVoice) {
+            chineseVoice = voices.find(voice => voice.lang.startsWith('zh'));
+        }
+
+        // If still no voice is found, alert the user.
+        if (!chineseVoice) {
+            console.error("No Chinese voice found on this system.");
+            alert("To enable sound, please install a Chinese voice on your MacBook:\nSystem Settings > Accessibility > Spoken Content > System Voice > Manage Voices... > Chinese");
+            return;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.voice = chineseVoice; // Explicitly set the found voice
+        utterance.lang = chineseVoice.lang; // Use the actual language of the voice
+        utterance.rate = 0.8; // A slightly slower rate for clarity
+        utterance.pitch = 1;
+        window.speechSynthesis.speak(utterance);
+    };
+
+    // The list of voices is loaded asynchronously. We need to wait for it.
+    if (window.speechSynthesis.getVoices().length > 0) {
+        speak();
+    } else {
+        window.speechSynthesis.onvoiceschanged = speak;
+    }
+}
+
+
 function changeDay(direction) {
     const newDay = currentDay + direction;
     if (newDay > 0 && newDay <= 30) {
@@ -214,10 +261,16 @@ function updateVocabularyTable() {
                 <td class="chinese-text simplified-char">${word.simplified || ''}</td>
                 <td class="chinese-text traditional-char">${word.traditional || ''}</td>
                 <td>${word.english || ''}</td>
+                <td>
+                    <button class="sound-btn">
+                        <i class="fas fa-bullhorn"></i>
+                    </button>
+                </td>
             `;
 
             const simplifiedCell = row.querySelector('.simplified-char');
             const traditionalCell = row.querySelector('.traditional-char');
+            const soundBtn = row.querySelector('.sound-btn');
 
             if (simplifiedCell) {
                 simplifiedCell.style.cursor = 'zoom-in';
@@ -228,11 +281,15 @@ function updateVocabularyTable() {
                 traditionalCell.style.cursor = 'zoom-in';
                 traditionalCell.addEventListener('click', () => openWordZoomModal(word.traditional, word.pinyin, word.english));
             }
+            
+            if (soundBtn) {
+                soundBtn.addEventListener('click', () => speakText(word.simplified));
+            }
 
             vocabTableBody.appendChild(row);
         });
     } else {
-        vocabTableBody.innerHTML = '<tr><td colspan="4">No vocabulary available for this day.</td></tr>';
+        vocabTableBody.innerHTML = '<tr><td colspan="5">No vocabulary available for this day.</td></tr>';
     }
 }
 
@@ -246,7 +303,12 @@ function updateSentences() {
             const sentenceCard = document.createElement('div');
             sentenceCard.className = 'sentence-card';
             sentenceCard.innerHTML = `
-                <div class="sentence-number">${index + 1}</div>
+                <div class="sentence-card-header">
+                    <div class="sentence-number">${index + 1}</div>
+                    <button class="sound-btn">
+                        <i class="fas fa-bullhorn"></i>
+                    </button>
+                </div>
                 <div class="sentence-chinese">${sentence.simplified || ''}</div>
                 <div class="sentence-pinyin">${sentence.pinyin || ''}</div>
                 <div class="sentence-english">${sentence.english || ''}</div>
@@ -256,6 +318,12 @@ function updateSentences() {
                 chineseTextElement.style.cursor = 'zoom-in';
                 chineseTextElement.addEventListener('click', () => openWordZoomModal(sentence.simplified, sentence.pinyin, sentence.english));
             }
+            
+            const soundBtn = sentenceCard.querySelector('.sound-btn');
+            if (soundBtn) {
+                soundBtn.addEventListener('click', () => speakText(sentence.simplified));
+            }
+
             sentencesContainer.appendChild(sentenceCard);
         });
     } else {
